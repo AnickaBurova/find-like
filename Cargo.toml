@@ -11,4 +11,3 @@ readme = "README.md"
 keywords = ["find", "close", "pattern", "search", "fuzzy"]
 
 [dependencies]
-rustkell = "0.2"
