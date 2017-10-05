@@ -6,10 +6,10 @@
  * Last Modified By: Anicka Burova <anicka.burova@gmail.com>
  */
 
-mod find_exact;
-pub use find_exact::{find_exact, FindExact};
+#[cfg(test)]
+extern crate rustkell;
 
 
 mod find_like;
-pub use find_like::{find_like, FindLike};
+pub use find_like::{FindLike};
 

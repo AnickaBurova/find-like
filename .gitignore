@@ -5,3 +5,4 @@ Cargo.lock
 .*.sw[op]
 .versionrc
 .version_upgrade
+.*.sw[op]

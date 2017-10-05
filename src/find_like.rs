@@ -7,63 +7,107 @@
  */
 
 /// Find like results.
+#[derive(Debug, PartialEq)]
 pub enum Match {
     /// Exact match at the position.
-    Exact(usize),
+    Exact,
     /// Partial match at the position, number of same hits and average deviation.
-    Partial(usize, usize, u8),
+    Partial(usize, u8),
 }
 
-pub fn find_like<'a,'b>(pattern: &'a[u8], data: &'b[u8]) -> FindLike<'a,'b> {
-    FindLike::create(pattern, data)
+pub trait FindLike {
+    fn find_like(&self, pattern: &[u8]) -> Option<Match>;
 }
 
-
-pub struct FindLike<'a, 'b> {
-    pattern: &'a[u8],
-    data: &'b[u8],
-    index: usize,
-}
-
-impl<'a, 'b> FindLike<'a, 'b> {
-    fn create(pattern: &'a[u8], data: &'b[u8]) -> Self {
-        //println!("{}", data.tails());
-        Self {
-            pattern,
-            data,
-            index: 0,
+impl FindLike for Vec<u8> {
+    fn find_like(&self, pattern: &[u8]) -> Option<Match> {
+        if self.len() < pattern.len() {
+            None
+        } else {
+            let mut hits = 0;
+            let mut miss = 0;
+            let mut deviation: i32 = 0;
+            for (a,b) in self.iter().zip(pattern) {
+                if *a == *b {
+                    hits += 1;
+                } else {
+                    miss += 1;
+                    let a = *a as i32;
+                    let b = *b as i32;
+                    deviation += (a-b).abs();
+                }
+            }
+            if miss == 0 {
+                Some(Match::Exact)
+            } else if hits == 0 {
+                None
+            } else {
+                Some(Match::Partial(hits, (deviation / miss) as u8))
+            }
         }
     }
 }
 
-impl<'a, 'b> Iterator for FindLike<'a, 'b> {
-    type Item = Match;
 
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.index >= self.data.len() {
+impl<'a> FindLike for &'a[u8] {
+    fn find_like(&self, pattern: &[u8]) -> Option<Match> {
+        if self.len() < pattern.len() {
             None
         } else {
-            let pat_size = self.pattern.len();
-            for i in self.index .. self.data.len() - pat_size {
-                let mut hits = 0;
-                let mut miss = 0;
-                let mut deviation: usize = 0;
-                for (a,b) in self.data[i..i + pat_size].iter().zip(self.pattern) {
-                    if a == b {
-                        hits += 1;
-                    } else {
-                        miss += 1;
-                        deviation += abs(:w
-
-                    }
-                }
-
-                if self.data[i .. i + pat_size] == *self.pattern {
-                    self.index = i+1;
-                    return Some(Match::Exact(i));
+            let mut hits = 0;
+            let mut miss = 0;
+            let mut deviation: i32 = 0;
+            for (a,b) in self.iter().zip(pattern) {
+                if *a == *b {
+                    hits += 1;
+                } else {
+                    miss += 1;
+                    let a = *a as i32;
+                    let b = *b as i32;
+                    deviation += (a-b).abs();
                 }
             }
-            None
+            if miss == 0 {
+                Some(Match::Exact)
+            } else if hits == 0 {
+                None
+            } else {
+                Some(Match::Partial(hits, (deviation / miss) as u8))
+            }
         }
+    }
+}
+
+#[test]
+fn vec_find_like_vec() {
+    use find_like::FindLike;
+    use rustkell::DataList;
+    let data = vec![1u8,2,3,4,5,6,3,4,5,6,8,9,2,3,4,5,2,2,4,5];
+    let pattern = vec![2u8,3,4,5];
+    let res = vec![
+        None,
+        Some(Match::Exact),
+        None,
+        None,
+        None,
+        Some(Match::Partial(3, 4)),
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        Some(Match::Exact),
+        None,
+        None,
+        None,
+        Some(Match::Partial(3, 1)),
+        None,
+        None,
+        None,
+        None,
+    ];
+    for (a,b) in data.tails().map(|t| t.find_like(&pattern[..])).zip(res) {
+        assert_eq!(a,b);
     }
 }
