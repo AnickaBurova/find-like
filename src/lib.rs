@@ -7,9 +7,22 @@
  */
 extern crate rustkell;
 
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
+pub fn find_exact<'a,'b>(pattern: &'a[u8], data: &'b[u8]) -> FindExact<'a,'b> {
+    FindExact::create(pattern, data)
+}
+
+
+
+pub struct FindExact<'a, 'b> {
+    pattern: &'a[u8],
+    data: &'b[u8],
+}
+
+impl<'a, 'b> FindExact<'a, 'b> {
+    fn create(pattern: &'a[u8], data: &'b[u8]) -> Self {
+        Self {
+            pattern,
+            data,
+        }
     }
 }
