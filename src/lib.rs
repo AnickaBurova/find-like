@@ -10,4 +10,6 @@ mod find_exact;
 pub use find_exact::{find_exact, FindExact};
 
 
+mod find_like;
+pub use find_like::{find_like, FindLike};
 
