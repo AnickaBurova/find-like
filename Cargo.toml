@@ -1,0 +1,6 @@
+[package]
+name = "find-like"
+version = "0.1.0"
+authors = ["Anicka Burova <anicka.burova@gmail.com>"]
+
+[dependencies]
